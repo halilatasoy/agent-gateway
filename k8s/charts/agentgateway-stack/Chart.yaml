@@ -1,0 +1,21 @@
+apiVersion: v2
+name: agentgateway-stack
+description: agentgateway üzerinde LLM ve MCP trafiği için Gateway, model, MCP backend ve politika yapılandırması.
+type: application
+version: 0.2.0
+# Test edilen upstream agentgateway sürümü.
+appVersion: "v1.7.0"
+kubeVersion: ">=1.30.0-0"
+icon: https://raw.githubusercontent.com/agentgateway/website/refs/heads/main/static/favicon.svg
+keywords:
+  - agentgateway
+  - llm
+  - mcp
+  - gateway-api
+sources:
+  - https://github.com/agentgateway/agentgateway
+annotations:
+  catalog.cattle.io/display-name: Agent Gateway Stack
+  catalog.cattle.io/namespace: agentgateway-system
+  catalog.cattle.io/release-name: agentgateway-stack
+  catalog.cattle.io/os: linux

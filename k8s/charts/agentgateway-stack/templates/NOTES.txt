@@ -1,0 +1,22 @@
+agentgateway-stack kuruldu ({{ .Release.Namespace }}).
+
+Gateway durumu:
+  kubectl get gateway {{ .Values.gateway.name }} -n {{ .Release.Namespace }}
+
+Yerel erişim (port-forward):
+  kubectl port-forward -n {{ .Release.Namespace }} deploy/{{ .Values.gateway.name }} {{ .Values.gateway.port }}:{{ .Values.gateway.port }}
+{{- if .Values.llm.enabled }}
+
+LLM (OpenAI uyumlu):  http://localhost:{{ .Values.gateway.port }}/v1/chat/completions
+  Modeller: {{ range $i, $m := .Values.llm.models }}{{ if $i }}, {{ end }}{{ $m.match }}{{ end }}
+{{- end }}
+{{- if .Values.mcp.enabled }}
+
+MCP:                  http://localhost:{{ .Values.gateway.port }}{{ .Values.mcp.path }}
+{{- end }}
+{{- if .Values.rateLimit.enabled }}
+
+Hız sınırı: dakikada {{ .Values.rateLimit.requestsPerMinute }} istek{{ if gt (int .Values.rateLimit.tokensPerMinute) 0 }}, {{ .Values.rateLimit.tokensPerMinute }} LLM token{{ end }}.
+{{- end }}
+
+Not: Kimlik doğrulama yapılandırılmadı. Gateway'i cluster dışına açmadan önce JWT/API key politikası ekleyin.

@@ -1,0 +1,74 @@
+/*
+ * Cobalt teması — tasarım token'ları.
+ * Kaynak: Hallmark (github.com/Nutlope/hallmark), skills/hallmark/references/themes/cobalt.md
+ * ve site/themes/cobalt/tokens.css. Tema değerleri aynen alınmıştır; panele özgü eklemeler en altta.
+ */
+:root {
+    color-scheme: light;
+
+    /* Boşluk ve yazı ölçeği */
+    --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px;
+    --text-xs: 0.8125rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.25rem; --text-xl: 1.5625rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem;
+
+    /* Hareket */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+
+    /* Katmanlar */
+    --z-raised: 10; --z-dropdown: 100; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500;
+
+    /* Kağıt, mürekkep, çizgiler */
+    --color-paper: oklch(98.6% 0.005 250); --color-paper-2: oklch(96.2% 0.008 252); --color-paper-3: oklch(93% 0.011 252);
+    --color-ink: oklch(21% 0.028 262); --color-ink-2: oklch(36% 0.022 260); --color-muted: oklch(50% 0.018 258);
+    --color-rule: oklch(90% 0.009 252); --color-rule-2: oklch(83% 0.012 252);
+
+    /* Grafit: tek koyu malzeme (kod, JSON) */
+    --color-graphite: oklch(21% 0.024 262); --color-graphite-0: oklch(18% 0.022 262); --color-graphite-2: oklch(26.5% 0.026 262); --color-graphite-3: oklch(31% 0.028 262);
+    --color-graphite-ink: oklch(93% 0.010 250); --color-graphite-muted: oklch(69% 0.022 256);
+
+    /* Tek vurgu: kobalt */
+    --color-accent: oklch(52% 0.19 258); --color-accent-2: oklch(76% 0.13 254); --color-accent-wash: oklch(95% 0.028 256); --color-accent-ink: oklch(98.6% 0.005 250);
+    --color-accent-hover: oklch(48% 0.19 259); --color-accent-deep: oklch(43% 0.2 262); --color-accent-edge: oklch(39% 0.16 260);
+    --color-focus: oklch(52% 0.19 258);
+    --color-glyph-1: oklch(89% 0.025 254); --color-glyph-2: oklch(81% 0.045 255); --color-glyph-3: oklch(70% 0.085 256); --color-glyph-4: oklch(60% 0.13 257);
+
+    /* Anlamsal renkler */
+    --color-error: oklch(52% 0.19 27); --color-success: oklch(50% 0.12 150);
+
+    /* Yazı tipleri */
+    --font-display: "Familjen Grotesk", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-outlier: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --tracking-display: -0.028em; --display-weight: 600;
+
+    /* Köşeler: iki karşı köşe kesik (corner-shape destekleyen tarayıcılarda) */
+    --radius-card: 8px; --radius-input: 6px;
+    --cut: 8px; --cut-l: 16px;
+    --rule-hair: 1px;
+
+    /* Tuşlar: gerçek bir alt kenarı olan tuş başlıkları */
+    --color-key-face: oklch(99.4% 0.003 250); --color-key-edge: oklch(80% 0.016 254);
+    --color-key-hi: oklch(100% 0 0 / 0.9); --color-key-hi-on-accent: oklch(100% 0 0 / 0.22);
+    --color-key-drop: oklch(21% 0.028 262 / 0.28); --color-key-drop-accent: oklch(30% 0.12 260 / 0.45);
+    --color-key-press: oklch(21% 0.028 262 / 0.14); --color-key-press-accent: oklch(21% 0.1 262 / 0.32); --color-tray-shade: oklch(21% 0.028 262 / 0.1);
+
+    --shadow-card: 0 1px 2px oklch(21% 0.028 262 / 0.06);
+    --shadow-key-press: 0 0 0 0 var(--color-key-edge), 0 1px 2px -1px var(--color-key-drop), inset 0 1px 2px var(--color-key-press);
+    --shadow-key-accent: 0 3px 0 0 var(--color-accent-edge), 0 6px 8px -4px var(--color-key-drop-accent), inset 0 1px 0 var(--color-key-hi-on-accent);
+    --shadow-tray: inset 0 1px 3px var(--color-tray-shade);
+    --shadow-panel: 0 1px 0 var(--color-rule), 0 18px 32px -24px oklch(21% 0.028 262 / 0.28);
+
+    /* ---- Panele özgü ---- */
+    /* Uygulama ekranı: pazarlama sayfasından daha dar kenar boşluğu */
+    --container: 1440px; --gutter: 32px; --topbar-h: 60px;
+    /* Panel tuşları 2 px kenarla (tema 3 px; yoğun araç çubuğunda daha sakin) */
+    --shadow-key-sm: 0 2px 0 0 var(--color-key-edge), 0 4px 6px -4px var(--color-key-drop), inset 0 1px 0 var(--color-key-hi);
+    --shadow-key-sm-hover: 0 3px 0 0 var(--color-key-edge), 0 6px 8px -5px var(--color-key-drop), inset 0 1px 0 var(--color-key-hi);
+    /* Hata renginin yüzey ve grafit karşılıkları */
+    --color-error-wash: oklch(96.5% 0.02 27);
+    --color-error-2: oklch(74% 0.14 27);
+}
+
+@media (max-width: 40rem) {
+    :root { --gutter: 16px; }
+}

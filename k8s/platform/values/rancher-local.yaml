@@ -1,0 +1,16 @@
+# Rancher Manager - yerel deneme değerleri (chart 2.15.3).
+# Hostname install-platform.ps1 tarafından -Domain parametresinden verilir.
+# Şirkette: replicas 3, RKE2 HA cluster, kurumsal CA ve AD/LDAP kimlik doğrulama.
+replicas: 1
+
+networkExposure:
+  type: ingress
+
+ingress:
+  ingressClassName: traefik
+  tls:
+    # Sertifika cert-manager'ın local-ca ClusterIssuer'ından gelir (Secret: tls-rancher-ingress).
+    source: secret
+
+# Sertifika özel bir CA ile imzalı; CA, cattle-system/tls-ca Secret'ında (cacerts.pem).
+privateCA: true

@@ -1,0 +1,54 @@
+/* Yakalanan Hassas Veriler */
+
+/* İnceleme paneli açıkken sayfa kaymasın */
+html:has(.inspector[open]) { overflow: hidden; }
+
+/* ---- Bulgular: veri türü, adet, bulunduğu yer ve maskelenmiş bağlam ---- */
+.findings { margin: 0; padding: 0; list-style: none; border: var(--rule-hair) solid var(--color-rule-2); border-radius: var(--radius-card); background: var(--color-key-face); overflow: hidden; }
+.finding { display: grid; gap: 8px; padding: var(--space-sm) var(--space-md); }
+.finding + .finding { border-top: var(--rule-hair) solid var(--color-rule); }
+.finding__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-sm); }
+.finding__count { font: 500 var(--text-xs)/1 var(--font-outlier); color: var(--color-ink); }
+.finding__where { display: inline-flex; align-items: center; gap: 5px; font: 500 var(--text-xs)/1.3 var(--font-display); color: var(--color-muted); }
+.finding__where .i { width: 14px; height: 14px; }
+.finding__snippet { padding: 7px 10px; border-radius: 4px; background: var(--color-paper-2); font: 400 var(--text-xs)/1.65 var(--font-outlier); color: var(--color-ink-2); overflow-wrap: anywhere; }
+
+/* ---- İstek akışı: numaralı düğümler bir çizgi üzerinde; verinin bulunduğu adım hata renginde ---- */
+.flow { margin: 0; padding: 0; list-style: none; }
+.flow__step { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: var(--space-md); padding-bottom: var(--space-md); }
+.flow__step::before { content: ""; position: absolute; left: 16.5px; top: 30px; bottom: 2px; width: 1px; background: var(--color-rule-2); }
+.flow__step:last-child { padding-bottom: 0; }
+.flow__step:last-child::before { display: none; }
+.flow__node { display: grid; place-items: center; width: 34px; height: 28px; border: var(--rule-hair) solid var(--color-rule-2); border-radius: 4px; background: var(--color-key-face); box-shadow: var(--shadow-card); font: 500 11px/1 var(--font-outlier); color: var(--color-muted); }
+.flow__node .i { width: 15px; height: 15px; }
+.flow__main { min-width: 0; }
+.flow__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-sm); min-height: 28px; }
+.flow__role { display: inline-flex; align-items: center; gap: 7px; font: 500 var(--text-sm)/1.2 var(--font-display); color: var(--color-ink); }
+.flow__role .i { width: 15px; height: 15px; color: var(--color-muted); }
+.flow__role code { padding: 1px 6px; border: var(--rule-hair) solid var(--color-rule-2); border-radius: 4px; font: 500 var(--text-xs)/1.4 var(--font-outlier); color: var(--color-ink); }
+.flow__phase { font: 500 var(--text-xs)/1.3 var(--font-display); color: var(--color-muted); }
+.flow__body { display: grid; gap: var(--space-xs); margin-top: var(--space-xs); }
+.flow__text { margin: 0; max-height: 260px; overflow: auto; padding: 10px 12px; border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-input); background: var(--color-paper-2); font: 400 var(--text-xs)/1.65 var(--font-outlier); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.flow__meta { font-size: var(--text-xs); color: var(--color-muted); }
+.flow__flag { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 500 var(--text-xs)/1.3 var(--font-display); color: var(--color-error); }
+.flow__flag .i { width: 14px; height: 14px; }
+.chip--flag { border-color: color-mix(in oklab, var(--color-error) 35%, var(--color-rule-2)); background: var(--color-error-wash); color: var(--color-error); }
+
+.flow__step.is-flagged .flow__node { border-color: var(--color-error); background: var(--color-error-wash); color: var(--color-error); }
+.flow__step.is-flagged .flow__text { border-color: color-mix(in oklab, var(--color-error) 30%, var(--color-rule)); box-shadow: inset 2px 0 0 var(--color-error); }
+.flow__step--user .flow__node { color: var(--color-ink); }
+
+/* Son adım: gateway'in kararı */
+.flow__step--decision .flow__node { border-color: var(--color-graphite); background: var(--color-graphite); color: var(--color-graphite-ink); box-shadow: none; }
+.flow__step--decision.is-reject .flow__node { border-color: var(--color-error); background: var(--color-error); color: var(--color-accent-ink); }
+.flow__step--decision.is-mask .flow__node { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
+.flow__step--decision .flow__role { color: var(--color-ink-2); }
+
+/* Araç çağrıları */
+.calls { display: grid; gap: var(--space-xs); margin: 0; padding: 0; list-style: none; }
+.call { display: grid; gap: 4px; }
+.call__head { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 500 var(--text-xs)/1.3 var(--font-display); }
+.call__head .i { width: 14px; height: 14px; color: var(--color-accent); }
+.call__label { color: var(--color-muted); }
+.call__name { font: 500 var(--text-xs)/1.3 var(--font-outlier); color: var(--color-accent); }
+.call__args { display: block; margin-left: 20px; padding: 6px 10px; border: var(--rule-hair) solid var(--color-rule); border-radius: 4px; background: var(--color-paper); font: 400 var(--text-xs)/1.6 var(--font-outlier); color: var(--color-ink-2); overflow-wrap: anywhere; white-space: pre-wrap; }

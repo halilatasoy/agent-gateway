@@ -1,0 +1,34 @@
+# Yerel deneme için kurum CA'sının yerine geçen öz-imzalı CA.
+# Şirkette bunun yerine kurumsal CA (veya kurumun cert-manager ClusterIssuer'ı) kullanılır.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-bootstrap
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: local-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: agentgateway-local-ca
+  secretName: local-ca
+  duration: 87600h # 10 yıl
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-bootstrap
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: local-ca
+spec:
+  ca:
+    secretName: local-ca

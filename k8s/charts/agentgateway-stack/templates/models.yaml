@@ -1,0 +1,68 @@
+{{- if .Values.llm.enabled }}
+{{- $g := .Values.guardrails }}
+{{- range .Values.llm.models }}
+{{- $baseURL := .baseURL | default (eq .provider "Ollama" | ternary $.Values.ollama.baseURL "") }}
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayModel
+metadata:
+  name: {{ required "llm.models[].name zorunlu" .name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "agentgateway-stack.labels" $ | nindent 4 }}
+spec:
+  parentRefs:
+    {{- include "agentgateway-stack.parentRef" $ | nindent 4 }}
+  match:
+    model: {{ required "llm.models[].match zorunlu" .match | quote }}
+  provider: {{ required "llm.models[].provider zorunlu" .provider }}
+  {{- with $baseURL }}
+  baseURL: {{ . | quote }}
+  {{- end }}
+  {{- if or .apiKey $g.enabled }}
+  policies:
+    {{- with .apiKey }}
+    auth:
+      secretRef:
+        name: {{ required "llm.models[].apiKey.existingSecret zorunlu" .existingSecret }}
+    {{- end }}
+    {{- if $g.enabled }}
+    promptGuard:
+      {{- with $g.request }}
+      request:
+        {{- range . }}
+        - regex:
+            action: {{ .action }}
+            {{- with .builtins }}
+            builtins: {{ toJson . }}
+            {{- end }}
+            {{- with .patterns }}
+            matches: {{ toJson . }}
+            {{- end }}
+          {{- if eq .action "Reject" }}
+          response:
+            statusCode: {{ $g.rejection.statusCode }}
+            message: {{ dict "error" (dict "message" $g.rejection.message "type" "invalid_request_error" "code" "sensitive_data_detected") | toJson | quote }}
+            headers:
+              - name: content-type
+                value: application/json; charset=utf-8
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- with $g.response }}
+      response:
+        {{- range . }}
+        - regex:
+            action: {{ .action }}
+            {{- with .builtins }}
+            builtins: {{ toJson . }}
+            {{- end }}
+            {{- with .patterns }}
+            matches: {{ toJson . }}
+            {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

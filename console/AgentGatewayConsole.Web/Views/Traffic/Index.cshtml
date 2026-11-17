@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = _messageService.Get("Traffic", "Title");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Traffic/Index.css" asp-append-version="true" />
+}
+
+<div class="page-head">
+    <div>
+        <h1>@_messageService.Get("Traffic", "Title")</h1>
+        <p class="page-head__lead">@_messageService.Get("Traffic", "Subtitle")</p>
+    </div>
+</div>
+
+<section class="panel" aria-labelledby="trafficTitle">
+    <h2 class="visually-hidden" id="trafficTitle">@_messageService.Get("Traffic", "Title")</h2>
+    <div class="toolbar" role="search" aria-label="@_messageService.Get("Traffic", "Filters")">
+        <label class="field toolbar__search">
+            <span class="visually-hidden">@_messageService.Get("Traffic", "Search")</span>
+            <svg class="i" aria-hidden="true"><use href="#i-search" /></svg>
+            <input type="search" id="searchBox" class="input" placeholder="@_messageService.Get("Traffic", "Search")" autocomplete="off" spellcheck="false" />
+        </label>
+        <select id="filterProtocol" class="select" aria-label="@_messageService.Get("Traffic", "Protocol")">
+            <option value="">@_messageService.Get("Traffic", "AllProtocols")</option>
+            <option value="llm">@_messageService.Get("Protocol", "llm")</option>
+            <option value="mcp">@_messageService.Get("Protocol", "mcp")</option>
+            <option value="http">@_messageService.Get("Protocol", "http")</option>
+        </select>
+        <select id="filterStatus" class="select" aria-label="@_messageService.Get("Traffic", "Status")">
+            <option value="">@_messageService.Get("Traffic", "AllStatuses")</option>
+            <option value="2xx">2xx</option>
+            <option value="4xx">4xx</option>
+            <option value="5xx">5xx</option>
+        </select>
+        <select id="filterOutcome" class="select" aria-label="@_messageService.Get("Traffic", "Outcome")">
+            <option value="">@_messageService.Get("Traffic", "AllOutcomes")</option>
+            <option value="Reject">@_messageService.Get("Outcome", "Reject")</option>
+            <option value="Mask">@_messageService.Get("Outcome", "Mask")</option>
+            <option value="Allow">@_messageService.Get("Outcome", "Allow")</option>
+            <option value="None">@_messageService.Get("Outcome", "None")</option>
+        </select>
+        <select id="filterModel" class="select" aria-label="@_messageService.Get("Traffic", "Target")">
+            <option value="">@_messageService.Get("Traffic", "AllModels")</option>
+        </select>
+    </div>
+    <div class="table-wrap">
+        <table class="data" id="trafficTable">
+            <thead>
+                <tr>
+                    <th scope="col">@_messageService.Get("Traffic", "Time")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Protocol")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Target")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Method")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Status")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Outcome")</th>
+                    <th scope="col" class="r">@_messageService.Get("Traffic", "Duration")</th>
+                    <th scope="col" class="r">@_messageService.Get("Traffic", "Tokens")</th>
+                    <th scope="col">@_messageService.Get("Traffic", "Client")</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</section>
+
+<script>window.PageContext = { url: { getPage: '@Url.Action("GetPage")', getFilterOptions: '@Url.Action("GetFilterOptions")' } };</script>
+
+@section Scripts {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/js/pages/Traffic/Index.js" asp-append-version="true"></script>
+}

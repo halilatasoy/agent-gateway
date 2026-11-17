@@ -1,0 +1,17 @@
+apiVersion: v2
+name: agentgateway-console
+description: agentgateway izleme paneli — OTLP erişim loglarını toplar; istek, token ve hassas veri engelleme özetini gösterir.
+type: application
+version: 0.3.0
+appVersion: "0.3.0"
+kubeVersion: ">=1.30.0-0"
+icon: https://raw.githubusercontent.com/agentgateway/website/refs/heads/main/static/favicon.svg
+keywords:
+  - agentgateway
+  - dlp
+  - observability
+annotations:
+  catalog.cattle.io/display-name: Agent Gateway İzleme Paneli
+  catalog.cattle.io/namespace: agentgateway-system
+  catalog.cattle.io/release-name: agentgateway-console
+  catalog.cattle.io/os: linux

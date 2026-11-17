@@ -1,0 +1,103 @@
+{{- $name := include "agc.fullname" . }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agc.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "agc.selector" (dict "Release" .Release "component" "console") | nindent 4 }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: otlp
+      port: 4318
+      targetPort: otlp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agc.labels" . | nindent 4 }}
+    app.kubernetes.io/component: console
+spec:
+  # Tek replika: DataProtection anahtarları pod içinde (emptyDir) tutulur.
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "agc.selector" (dict "Release" .Release "component" "console") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "agc.selector" (dict "Release" .Release "component" "console") | nindent 8 }}
+      annotations:
+        # Ayarlar (values.settings) değişirse pod yeniden başlasın
+        checksum/settings: {{ .Values.settings | toJson | sha256sum | trunc 16 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        # aspnet:8.0 imajındaki "app" kullanıcısının UID'i
+        runAsUser: 1654
+        runAsGroup: 1654
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: console
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Üç katmanlı config: bağlantı bilgisi yalnızca env var'dan (Secret)
+            - name: ConnectionStrings__Default
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agc.dbSecretName" . }}
+                  key: connectionString
+            - name: Settings__Language
+              value: {{ .Values.settings.language | quote }}
+            - name: HOME
+              value: /home/app
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: otlp
+              containerPort: 4318
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: home
+              mountPath: /home/app
+            - name: tmp
+              mountPath: /tmp
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: home
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AgentGatewayConsole.Tests/AgentGatewayConsole.Tests.csproj" />
+  <Project Path="AgentGatewayConsole.Web/AgentGatewayConsole.Web.csproj" />
+</Solution>

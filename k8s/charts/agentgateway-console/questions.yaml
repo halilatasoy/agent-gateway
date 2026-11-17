@@ -1,0 +1,55 @@
+questions:
+  - variable: settings.language
+    label: Arayüz dili
+    type: enum
+    options: [tr, en]
+    default: tr
+    group: Genel
+  - variable: image.repository
+    label: İmaj deposu
+    description: Şirkette Harbor yolu, örn. harbor.sirket.local/agentgateway/agentgateway-console
+    type: string
+    default: agentgateway-console
+    group: Genel
+  - variable: image.tag
+    label: İmaj etiketi
+    type: string
+    default: "0.3.0"
+    group: Genel
+  - variable: ingress.enabled
+    label: Ingress ile dışarı aç
+    type: boolean
+    default: true
+    group: Erişim
+    show_subquestion_if: true
+    subquestions:
+      - variable: ingress.host
+        label: Adres (hostname)
+        type: hostname
+        default: console.127.0.0.1.sslip.io
+      - variable: ingress.clusterIssuer
+        label: cert-manager ClusterIssuer
+        description: Boş bırakılırsa TLS yapılandırılmaz.
+        type: string
+        default: local-ca
+  - variable: otlp.enabled
+    label: agentgateway loglarını bu panele gönder
+    type: boolean
+    default: true
+    group: Veri
+    show_subquestion_if: true
+    subquestions:
+      - variable: otlp.gateway.name
+        label: Gateway adı
+        type: string
+        default: agentgateway-proxy
+      - variable: capture.enabled
+        label: Yakalanan isteklerin akışını göster
+        description: Hassas veri yakalanan isteklerde kullanıcı istemi ve araç çağrıları, maskelenerek saklanır. Temiz isteklerin içeriği saklanmaz.
+        type: boolean
+        default: true
+  - variable: postgres.storage
+    label: Veritabanı disk boyutu
+    type: string
+    default: 2Gi
+    group: Veri

@@ -1,0 +1,68 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string? Current(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "page" : null;
+    var currentLang = _messageService.CurrentLanguage;
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<!DOCTYPE html>
+<html lang="@currentLang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · @_messageService.Get("Global", "Brand")</title>
+    <link rel="icon" type="image/svg+xml" href="~/img/favicon.svg" asp-append-version="true" />
+    <link rel="preload" href="~/lib/fonts/familjen-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="~/lib/fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/lib/fonts/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <partial name="_Icons" />
+    <a class="skip" href="#main">@_messageService.Get("Global", "SkipToContent")</a>
+
+    <header class="topbar">
+        <div class="shell topbar__in">
+            <a class="wordmark" asp-controller="Dashboard" asp-action="Index">
+                <svg class="wordmark__mark" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+                    <path class="wordmark__plate" d="M8 1h19v19l-7 7H1V8z" />
+                    <path class="wordmark__gate" d="M5 14h5M18 14h5M14 6v4M14 12v4M14 18v4" />
+                </svg>
+                <span class="wordmark__name">@_messageService.Get("Global", "Brand")</span>
+                <span class="wordmark__sub">@_messageService.Get("Global", "BrandSub")</span>
+            </a>
+            <nav class="nav" aria-label="@_messageService.Get("Global", "MainNav")">
+                <a class="nav__link" aria-current="@Current("Dashboard")" asp-controller="Dashboard" asp-action="Index">@_messageService.Get("Global", "NavDashboard")</a>
+                <a class="nav__link" aria-current="@Current("ProtectedData")" asp-controller="ProtectedData" asp-action="Index">@_messageService.Get("Global", "NavProtected")</a>
+                <a class="nav__link" aria-current="@Current("Traffic")" asp-controller="Traffic" asp-action="Index">@_messageService.Get("Global", "NavTraffic")</a>
+            </nav>
+            <form class="topbar__end" method="post" asp-controller="Language" asp-action="Set">
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <div class="tray tray--sm" role="group" aria-label="@_messageService.Get("Global", "Language")">
+                    <button type="submit" name="lang" value="tr" class="tray__key" aria-pressed="@(currentLang == "tr" ? "true" : "false")" title="@_messageService.Get("Global", "LanguageTr")">TR</button>
+                    <button type="submit" name="lang" value="en" class="tray__key" aria-pressed="@(currentLang == "en" ? "true" : "false")" title="@_messageService.Get("Global", "LanguageEn")">EN</button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <main class="shell main" id="main" tabindex="-1">
+        @RenderBody()
+    </main>
+
+    <footer class="foot">
+        <div class="shell foot__in">
+            <svg class="i" aria-hidden="true"><use href="#i-lock" /></svg>
+            <span>@_messageService.Get("Global", "PrivacyNote")</span>
+        </div>
+    </footer>
+
+    <div class="toasts" id="toasts" aria-live="assertive" aria-atomic="false"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/messages.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

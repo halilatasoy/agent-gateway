@@ -1,0 +1,32 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "agc.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agc.labels" . | nindent 4 }}
+  {{- with .Values.ingress.clusterIssuer }}
+  annotations:
+    # cert-manager ingress-shim sertifikayı bu ClusterIssuer'dan üretir.
+    cert-manager.io/cluster-issuer: {{ . }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.clusterIssuer }}
+  tls:
+    - hosts: [{{ .Values.ingress.host | quote }}]
+      secretName: {{ include "agc.fullname" . }}-tls
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "agc.fullname" . }}
+                port:
+                  name: http
+{{- end }}

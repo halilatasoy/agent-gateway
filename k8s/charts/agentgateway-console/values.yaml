@@ -1,0 +1,56 @@
+# agentgateway-console değerleri.
+# Gateway ile aynı namespace'e kurulmalıdır (AgentgatewayPolicy Gateway'i yerel olarak hedefler).
+
+image:
+  # Yerelde: nerdctl --namespace k8s.io build -t agentgateway-console:0.3.0 console/
+  # Şirkette: harbor.sirket.local/agentgateway/agentgateway-console
+  repository: agentgateway-console
+  tag: "0.3.0"
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+settings:
+  # Arayüzün varsayılan dili: tr | en
+  language: tr
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  host: console.127.0.0.1.sslip.io
+  # cert-manager ClusterIssuer; boş bırakılırsa TLS yapılandırılmaz.
+  clusterIssuer: local-ca
+
+# agentgateway erişim loglarının OTLP ile bu panele gönderilmesi
+otlp:
+  enabled: true
+  gateway:
+    name: agentgateway-proxy
+
+# İçerik yakalama: guardrail'in engellediği veya maskelediği isteklerde istek akışını (kullanıcı istemi,
+# araç çağrıları, araç sonuçları) panelde gösterir. Temiz isteklerin içeriği gateway'den hiç çıkmaz.
+# Gövde gateway'den panele ham gider (cluster içi); panel kaydetmeden önce hassas veriyi maskeler,
+# sistem mesajını ve araç tanımlarını atar. Kapatılırsa yalnızca karar ve istek bilgileri tutulur.
+capture:
+  enabled: true
+
+postgres:
+  # Tedarik zinciri: sürüm sabit, ≥2 haftalık.
+  image: postgres:17.10-alpine3.23
+  database: agwconsole
+  username: agwconsole
+  storage: 2Gi
+  # Boş: cluster'ın varsayılan StorageClass'ı (Rancher Desktop/k3s: local-path)
+  storageClass: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi

@@ -1,0 +1,35 @@
+{{- if .Values.otlp.enabled }}
+# agentgateway erişim loglarını OTLP/HTTP (protobuf) ile panele gönderir.
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: {{ include "agc.fullname" . }}-accesslog
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agc.labels" . | nindent 4 }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ .Values.otlp.gateway.name }}
+  frontend:
+    accessLog:
+      otlp:
+        protocol: HTTP
+        path: /v1/logs
+        backendRef:
+          name: {{ include "agc.fullname" . }}
+          port: 4318
+        {{- if .Values.capture.enabled }}
+        # İçerik yakalama: yalnızca guardrail'in engellediği/maskelediği isteklerde dolu gelir.
+        # Gövde gateway'den ham çıkar; panel kaydetmeden önce maskeler (ContentDetailBuilder).
+        attributes:
+          add:
+            - name: agwc.request.body
+              expression: 'guardrails.exists(g, g.action == "reject" || g.action == "mask") ? string(request.body) : ""'
+            - name: agwc.response.tool_calls
+              expression: 'guardrails.exists(g, g.action == "reject" || g.action == "mask") ? llm.toolCalls : []'
+            - name: agwc.response.completion
+              expression: 'guardrails.exists(g, g.phase == "response" && g.action == "mask") ? llm.completion : []'
+        {{- end }}
+{{- end }}

@@ -1,0 +1,15 @@
+Agent Gateway İzleme Paneli kuruldu ({{ .Release.Namespace }}).
+
+{{- if .Values.ingress.enabled }}
+Arayüz: {{ if .Values.ingress.clusterIssuer }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
+{{- else }}
+Arayüz: kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "agc.fullname" . }} 8080:80
+{{- end }}
+
+{{- if .Values.otlp.enabled }}
+agentgateway ({{ .Values.otlp.gateway.name }}) erişim loglarını OTLP ile bu panele gönderiyor.
+Durum: kubectl get agentgatewaypolicy {{ include "agc.fullname" . }}-accesslog -n {{ .Release.Namespace }}
+{{- end }}
+
+Not: Kimlik doğrulama yok (v1). Arayüzü cluster dışına açmadan önce OIDC ekleyin.
+İstem/yanıt içeriği saklanmaz; yalnızca istek bilgileri ve guardrail kararı tutulur.

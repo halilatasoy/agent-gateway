@@ -1,0 +1,10 @@
+/* Trafik Kaydı */
+.toolbar { display: flex; flex-wrap: wrap; gap: var(--space-xs); padding: var(--space-md) var(--space-lg); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.toolbar__search { flex: 1 1 280px; }
+.toolbar .select { flex: 0 1 190px; min-width: 0; }
+.cell-target { max-width: 28ch; overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 40rem) {
+    .toolbar { padding: var(--space-sm) var(--space-md); }
+    .toolbar .select { flex: 1 1 calc(50% - var(--space-xs)); }
+}

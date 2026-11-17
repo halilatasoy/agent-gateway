@@ -1,0 +1,25 @@
+# Harbor - yerel deneme değerleri (chart 1.19.4 / Harbor 2.15.4).
+# Hostname ve externalURL install-platform.ps1 tarafından -Domain parametresinden verilir.
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    # Sertifika cert-manager'ın local-ca ClusterIssuer'ından gelir (Certificate: harbor-tls).
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+  ingress:
+    className: traefik
+
+# Yönetici parolası rastgele üretilip bu Secret'a yazılır; chart'ın varsayılan parolası kullanılmaz.
+existingSecretAdminPassword: harbor-admin
+existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+
+# Yerelde kaynak tasarrufu için kapalı. Şirkette açık olmalı (imaj zafiyet taraması).
+trivy:
+  enabled: false
+
+persistence:
+  enabled: true
+  # helm uninstall sonrası veriler (PVC) korunur.
+  resourcePolicy: keep

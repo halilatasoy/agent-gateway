@@ -1,0 +1,95 @@
+# Rancher Apps kurulum formu. Liste değerleri (modeller, MCP hedefleri) formda düzenlenemez;
+# onlar için Rancher'daki "Edit YAML" görünümünü kullanın.
+questions:
+  - variable: gateway.port
+    label: Gateway portu
+    description: LLM ve MCP isteklerinin karşılandığı port. k3s/RKE2'de 80 genellikle ingress tarafından kullanılır.
+    type: int
+    default: 8080
+    min: 1
+    max: 65535
+    group: Gateway
+  - variable: gateway.service.type
+    label: Service tipi
+    description: Proxy Service tipi. Rancher'da Ingress/LB arkasında çalışacaksa ClusterIP seçin.
+    type: enum
+    options:
+      - LoadBalancer
+      - ClusterIP
+      - NodePort
+    default: LoadBalancer
+    group: Gateway
+  - variable: gateway.allowedRoutesFrom
+    label: Route kabul edilen namespace'ler
+    description: Same yalnızca bu namespace'teki route ve modelleri kabul eder; All tüm namespace'leri.
+    type: enum
+    options:
+      - Same
+      - All
+    default: Same
+    group: Gateway
+
+  - variable: llm.enabled
+    label: LLM gateway etkin
+    description: Modelleri OpenAI uyumlu /v1 uç noktasında sunar. Model listesi YAML görünümünden düzenlenir.
+    type: boolean
+    default: true
+    group: LLM
+    show_subquestion_if: true
+    subquestions:
+      - variable: ollama.baseURL
+        label: Ollama adresi
+        description: provider Ollama olan modeller için varsayılan adres (sonu /v1 ile).
+        type: string
+        default: http://host.rancher-desktop.internal:11434/v1
+        required: true
+
+  - variable: mcp.enabled
+    label: MCP gateway etkin
+    description: MCP hedeflerini tek bir sanal MCP sunucusu olarak sunar. Hedef listesi YAML görünümünden düzenlenir.
+    type: boolean
+    default: true
+    group: MCP
+    show_subquestion_if: true
+    subquestions:
+      - variable: mcp.path
+        label: MCP yolu
+        type: string
+        default: /mcp
+      - variable: mcp.demoServer.enabled
+        label: Demo MCP sunucusu (server-everything)
+        description: Test için cluster içinde örnek bir MCP sunucusu çalıştırır. Pod açılışında npm'den paket indirir.
+        type: boolean
+        default: true
+      - variable: mcp.failureMode
+        label: Hedef hatasında davranış
+        type: enum
+        options:
+          - FailOpen
+          - FailClosed
+        default: FailOpen
+
+  - variable: guardrails.enabled
+    label: Hassas veri koruması (DLP)
+    description: TC Kimlik No, IBAN ve kart numarası içeren istekleri engeller; e-posta ve telefonu maskeler. Kurallar YAML görünümünden düzenlenir.
+    type: boolean
+    default: true
+    group: Güvenlik
+  - variable: rateLimit.enabled
+    label: Hız sınırı etkin
+    description: Gateway genelinde yerel hız sınırı; kaçak ajan döngülerini sınırlar.
+    type: boolean
+    default: true
+    group: Güvenlik
+    show_subquestion_if: true
+    subquestions:
+      - variable: rateLimit.requestsPerMinute
+        label: Dakikada istek
+        type: int
+        default: 120
+        min: 1
+      - variable: rateLimit.tokensPerMinute
+        label: Dakikada LLM token (0 = kapalı)
+        type: int
+        default: 500000
+        min: 0

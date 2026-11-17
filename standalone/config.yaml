@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://agentgateway.dev/schema/config
+#
+# agentgateway yerel deneme yapılandırması (standalone, Windows).
+# Tek port (4000) üzerinden üç şey servis edilir:
+#   - LLM  : http://localhost:4000/v1/chat/completions  (OpenAI uyumlu)
+#   - MCP  : http://localhost:4000/mcp                  (tüm hedefler tek sanal MCP sunucusu)
+#   - UI   : http://localhost:4000/ui/
+# Kimlik doğrulama bu aşamada bilinçli olarak yok; bu yüzden yalnızca loopback'e bağlanıyoruz.
+
+gateways:
+  default:
+    port: 4000
+    bindAddress: 127.0.0.1
+
+llm:
+  # Model adları Ollama'daki adlarla birebir aynı tutuldu: params.model verilmediğinde
+  # istekteki model adı sağlayıcıya olduğu gibi iletilir.
+  models:
+  - name: qwen3:14b
+    provider: ollama
+  - name: qwen2.5-coder:7b
+    provider: ollama
+  - name: qwen3-coder:30b
+    provider: ollama
+  # Copilot CLI'ın tam ajan modu (yerleşik araçlar + uzun sistem promptu) 4096 token'lık
+  # varsayılan Ollama bağlamına sığmıyor; bu türev model 24k bağlamla çalışır.
+  # Oluşturma: ollama create qwen3-14b-24k -f standalone/ollama/qwen3-14b-24k.Modelfile
+  - name: qwen3-14b-24k
+    provider: ollama
+
+mcp:
+  targets:
+  # Resmi quickstart'taki test sunucusu; scripts/start-mcp-everything.ps1 ile ayrıca başlatılır.
+  - name: everything
+    mcp:
+      host: http://localhost:3005/mcp
+
+ui: {}
+
+# MCP oturum ID şifreleme anahtarı (config.session.key) bilinçli olarak burada yok:
+# scripts/start-gateway.ps1 onu git dışı standalone/.session-key dosyasından SESSION_KEY
+# ortam değişkeni olarak verir. SESSION_KEY verilmezse gateway anahtarı üretip bu dosyaya yazar.

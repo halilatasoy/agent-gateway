@@ -1,0 +1,143 @@
+@{
+    ViewData["Title"] = _messageService.Get("Dashboard", "Title");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Dashboard/Index.css" asp-append-version="true" />
+}
+
+<div class="page-head">
+    <div>
+        <h1>@_messageService.Get("Dashboard", "Title")</h1>
+        <p class="page-head__lead">@_messageService.Get("Dashboard", "Subtitle")</p>
+    </div>
+    <div class="page-head__tools">
+        <div class="tray" id="rangeTray" role="group" aria-label="@_messageService.Get("Global", "Range")">
+            <button type="button" class="tray__key" data-range="LastHour" aria-pressed="false">@_messageService.Get("Global", "Range1h")</button>
+            <button type="button" class="tray__key" data-range="Last24Hours" aria-pressed="true">@_messageService.Get("Global", "Range24h")</button>
+            <button type="button" class="tray__key" data-range="Last7Days" aria-pressed="false">@_messageService.Get("Global", "Range7d")</button>
+        </div>
+        <p class="live">
+            <span class="live__dot" aria-hidden="true"></span>
+            <span>@_messageService.Get("Global", "Live")</span>
+            <span class="live__sep" aria-hidden="true">/</span>
+            <span id="refreshInfo"></span>
+            <span class="live__sep" aria-hidden="true">/</span>
+            <span id="lastUpdated" aria-live="polite"></span>
+        </p>
+    </div>
+</div>
+
+<section class="panel ledger" aria-label="@_messageService.Get("Dashboard", "SummaryAria")">
+    <div class="ledger__group ledger__group--protect">
+        <p class="ledger__label">
+            <svg class="i" aria-hidden="true"><use href="#i-shield" /></svg>
+            @_messageService.Get("Dashboard", "ProtectionGroup")
+        </p>
+        <div class="ledger__hero">
+            <div class="stat stat--hero stat--reject">
+                <p class="stat__label"><svg class="i" aria-hidden="true"><use href="#i-ban" /></svg>@_messageService.Get("Dashboard", "Rejected")</p>
+                <p class="stat__fig" data-kpi="rejected">–</p>
+                <p class="stat__sub">@_messageService.Get("Dashboard", "RejectedSub")</p>
+            </div>
+            <div class="stat stat--hero stat--mask">
+                <p class="stat__label"><svg class="i" aria-hidden="true"><use href="#i-eye-off" /></svg>@_messageService.Get("Dashboard", "Masked")</p>
+                <p class="stat__fig" data-kpi="masked">–</p>
+                <p class="stat__sub">@_messageService.Get("Dashboard", "MaskedSub")</p>
+            </div>
+        </div>
+    </div>
+    <div class="ledger__group ledger__group--traffic">
+        <p class="ledger__label">
+            <svg class="i" aria-hidden="true"><use href="#i-gate" /></svg>
+            @_messageService.Get("Dashboard", "TrafficGroup")
+        </p>
+        <div class="ledger__row">
+            <div class="stat">
+                <p class="stat__label">@_messageService.Get("Dashboard", "TotalRequests")</p>
+                <p class="stat__fig" data-kpi="totalRequests">–</p>
+            </div>
+            <div class="stat">
+                <p class="stat__label">@_messageService.Get("Dashboard", "LlmRequests")</p>
+                <p class="stat__fig" data-kpi="llmRequests">–</p>
+            </div>
+            <div class="stat">
+                <p class="stat__label">@_messageService.Get("Dashboard", "McpToolCalls")</p>
+                <p class="stat__fig" data-kpi="mcpToolCalls">–</p>
+            </div>
+            <div class="stat stat--wide">
+                <p class="stat__label">@_messageService.Get("Dashboard", "Tokens")</p>
+                <p class="stat__fig" data-kpi="tokens">–</p>
+                <p class="stat__sub" data-kpi-sub="tokens"></p>
+            </div>
+            <div class="stat">
+                <p class="stat__label">@_messageService.Get("Dashboard", "FailureRate")</p>
+                <p class="stat__fig" data-kpi="failureRate">–</p>
+                <p class="stat__sub" data-kpi-sub="failureRate"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="grid">
+    <section class="panel span-12" aria-labelledby="timelineTitle">
+        <div class="panel__head">
+            <h2 class="panel__title" id="timelineTitle">@_messageService.Get("Dashboard", "TimelineTitle")</h2>
+            <ul class="legend" aria-hidden="true">
+                <li><span class="swatch swatch--other"></span>@_messageService.Get("Dashboard", "SeriesOther")</li>
+                <li><span class="swatch swatch--mask"></span>@_messageService.Get("Dashboard", "SeriesMasked")</li>
+                <li><span class="swatch swatch--reject"></span>@_messageService.Get("Dashboard", "SeriesRejected")</li>
+            </ul>
+        </div>
+        <div class="panel__body">
+            <div class="chart" id="timelineChart"></div>
+        </div>
+    </section>
+
+    <section class="panel span-6" aria-labelledby="modelsTitle">
+        <div class="panel__head">
+            <h2 class="panel__title" id="modelsTitle">@_messageService.Get("Dashboard", "ModelsTitle")</h2>
+            <span class="panel__meta" data-meta="models"></span>
+        </div>
+        <div class="panel__body">
+            <table class="rank" id="modelTable">
+                <thead>
+                    <tr>
+                        <th scope="col">@_messageService.Get("Dashboard", "ColModel")</th>
+                        <th scope="col"><span class="visually-hidden">@_messageService.Get("Dashboard", "ColShare")</span></th>
+                        <th scope="col" class="r">@_messageService.Get("Dashboard", "ColRequests")</th>
+                        <th scope="col" class="r">@_messageService.Get("Dashboard", "ColTokens")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p class="rank__empty" data-empty="models" hidden>@_messageService.Get("Dashboard", "NoData")</p>
+        </div>
+    </section>
+
+    <section class="panel span-6" aria-labelledby="toolsTitle">
+        <div class="panel__head">
+            <h2 class="panel__title" id="toolsTitle">@_messageService.Get("Dashboard", "ToolsTitle")</h2>
+            <span class="panel__meta" data-meta="tools"></span>
+        </div>
+        <div class="panel__body">
+            <table class="rank" id="toolTable">
+                <thead>
+                    <tr>
+                        <th scope="col">@_messageService.Get("Dashboard", "ColTool")</th>
+                        <th scope="col"><span class="visually-hidden">@_messageService.Get("Dashboard", "ColShare")</span></th>
+                        <th scope="col" class="r">@_messageService.Get("Dashboard", "ColCalls")</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p class="rank__empty" data-empty="tools" hidden>@_messageService.Get("Dashboard", "NoData")</p>
+        </div>
+    </section>
+</div>
+
+<script>window.PageContext = { url: { getData: '@Url.Action("GetData")' }, refreshSeconds: @ViewData["RefreshSeconds"] };</script>
+
+@section Scripts {
+    <script src="~/js/pages/Dashboard/Index.js" asp-append-version="true"></script>
+}

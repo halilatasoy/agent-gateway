@@ -1,0 +1,10 @@
+bin/
+obj/
+*.log
+logs/
+.vs/
+.copilot-home/
+k8s/platform/.local/
+tools/copilot-cli/node_modules/
+tools/copilot-cli/home/
+standalone/.session-key

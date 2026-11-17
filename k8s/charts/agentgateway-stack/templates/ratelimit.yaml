@@ -1,0 +1,24 @@
+{{- if .Values.rateLimit.enabled }}
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: {{ .Values.gateway.name }}-ratelimit
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agentgateway-stack.labels" . | nindent 4 }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ .Values.gateway.name }}
+  traffic:
+    rateLimit:
+      # CRD kuralı: her öğede requests veya tokens alanlarından yalnızca biri olabilir.
+      local:
+        - requests: {{ .Values.rateLimit.requestsPerMinute }}
+          unit: Minutes
+        {{- if gt (int .Values.rateLimit.tokensPerMinute) 0 }}
+        - tokens: {{ .Values.rateLimit.tokensPerMinute }}
+          unit: Minutes
+        {{- end }}
+{{- end }}

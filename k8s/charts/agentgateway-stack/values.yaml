@@ -1,0 +1,113 @@
+# agentgateway-stack değerleri.
+# Önkoşul: Gateway API CRD'leri + agentgateway-crds + agentgateway (controller) chart'ları kurulu olmalı.
+# Bkz. k8s/README.md
+
+gateway:
+  # Gateway kaynağının adı. Controller bu adla bir proxy Deployment + Service oluşturur.
+  name: agentgateway-proxy
+  className: agentgateway
+  # Dinleyici portu. 80 yerine 8080: k3s/RKE2'de 80 portu genellikle Traefik/ingress-nginx tarafından kullanılır.
+  port: 8080
+  # Route ve modellerin hangi namespace'lerden bu Gateway'e bağlanabileceği: Same | All
+  allowedRoutesFrom: Same
+  service:
+    # Proxy Service tipi: LoadBalancer | ClusterIP | NodePort
+    # Rancher'da Ingress/LB önünde çalışacaksa ClusterIP seçin.
+    type: LoadBalancer
+
+ollama:
+  # provider: Ollama olan ve kendi baseURL'i verilmeyen modeller için varsayılan adres.
+  # Rancher Desktop'ta host makinedeki Ollama: host.rancher-desktop.internal
+  # Gerçek cluster'da örn.: http://ollama.ollama.svc.cluster.local:11434/v1
+  baseURL: http://host.rancher-desktop.internal:11434/v1
+
+llm:
+  enabled: true
+  # Her öğe bir AgentgatewayModel kaynağı olur.
+  #   name     : Kubernetes kaynak adı (DNS uyumlu, ':' içeremez)
+  #   match    : İstemcinin gönderdiği model adı (tam ad, "gpt-*" veya "*")
+  #   provider : Ollama | OpenAI | Anthropic | Azure | Gemini | ... (CRD enum'una bakın)
+  #   baseURL  : İsteğe bağlı; Ollama için verilmezse ollama.baseURL kullanılır
+  #   apiKey.existingSecret : Sağlayıcı anahtarını tutan Secret ("Authorization" anahtarı)
+  models:
+    - name: qwen3-14b
+      match: "qwen3:14b"
+      provider: Ollama
+    - name: qwen3-14b-24k
+      match: "qwen3-14b-24k"
+      provider: Ollama
+    # Bulut sağlayıcı örneği:
+    # - name: openai
+    #   match: "gpt-*"
+    #   provider: OpenAI
+    #   apiKey:
+    #     existingSecret: openai-secret
+
+mcp:
+  enabled: true
+  # İstemcilerin bağlanacağı yol: http://<gateway>:<port>/mcp
+  path: /mcp
+  # Birden çok hedefte araç adlarının önekleme biçimi: Always | Conditional | Never
+  prefixMode: Conditional
+  # Bir hedef başlatılamazsa: FailClosed (tümü hata) | FailOpen (kalanlarla devam)
+  failureMode: FailOpen
+  # Gateway'in tek bir sanal MCP sunucusu olarak birleştirdiği hedefler.
+  #   host + port + path : cluster içi veya dışı MCP sunucusu
+  #   protocol           : StreamableHTTP | SSE
+  targets: []
+    # - name: website-fetcher
+    #   host: mcp-website-fetcher.tools.svc.cluster.local
+    #   port: 80
+    #   path: /sse
+    #   protocol: SSE
+
+  # Test için cluster içinde @modelcontextprotocol/server-everything çalıştırır ve hedeflere ekler.
+  demoServer:
+    enabled: true
+    name: mcp-everything
+    # server-everything 2.x, Node >=24 ister.
+    image: node:24-alpine
+    # Tedarik zinciri riski için sürüm sabit tutulur.
+    package: "@modelcontextprotocol/server-everything@2.1.0"
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
+guardrails:
+  # Hassas veri koruması (DLP). Tüm modellere uygulanır. Varsayılan kapsam: sistem istemi, mesajlar ve
+  # MCP araç çıktıları (ToolOutput); yani bir aracın döndürdüğü veri de modele gitmeden taranır.
+  # action: Audit (yalnızca kaydet) | Mask (maskele) | Reject (engelle; yalnızca request)
+  # builtins: CreditCard | Email | PhoneNumber | Ssn (ABD) | CaSin (Kanada)
+  # patterns: Rust regex sözdizimi (lookaround yok)
+  enabled: true
+  request:
+    - action: Reject
+      builtins: [CreditCard]
+      patterns:
+        - '\b[1-9][0-9]{10}\b'                     # TC Kimlik No (11 hane, 0 ile başlamaz)
+        - '\bTR[0-9]{2}(?:\s?[0-9]{4}){5}\s?[0-9]{2}\b'  # TR IBAN
+    - action: Mask
+      builtins: [Email, PhoneNumber]
+      patterns:
+        - '(?:\+90|0)\s?5[0-9]{2}\s?[0-9]{3}\s?[0-9]{2}\s?[0-9]{2}'  # TR cep telefonu
+  response:
+    - action: Mask
+      builtins: [CreditCard, Email, PhoneNumber]
+      patterns:
+        - '\b[1-9][0-9]{10}\b'
+        - '\bTR[0-9]{2}(?:\s?[0-9]{4}){5}\s?[0-9]{2}\b'
+  # Reject durumunda istemciye dönen yanıt; OpenAI hata biçiminde (JSON) döner.
+  # 403 kullanılmaz: Copilot CLI 403'ü "kimlik doğrulama hatası" sanıp asıl mesajı gizliyor.
+  rejection:
+    statusCode: 400
+    message: "İstek engellendi: hassas veri (TC Kimlik No, IBAN veya kart numarası) tespit edildi. Lütfen veriyi çıkarıp tekrar deneyin."
+
+rateLimit:
+  # Gateway genelinde yerel hız sınırı. Kaçak ajan döngülerini (aynı aracı sonsuz çağırma) sınırlar.
+  enabled: true
+  requestsPerMinute: 120
+  # LLM token limiti (dakikada). 0 = kapalı.
+  tokensPerMinute: 500000
